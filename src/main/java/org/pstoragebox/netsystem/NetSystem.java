@@ -8,10 +8,16 @@ public class NetSystem {
         return TcpService.getOnlineClientList().toArray(String[]::new);
     }
 
+    public static Integer getOnlineNodes(){
+        return TcpService.getOnlineClientsCount();
+    }
+
     // 上传文件 返回结果
     // 目标主机ID，byte数组，新文件路径
     public static boolean uploadFile(String aimID,byte[] data,String filePath){
-        return TcpService.sendBlockTo(aimID,data,filePath);
+        Boolean block = TcpService.sendBlockTo(aimID, data, filePath);
+        updateData(getLatestData());
+        return block;
     }
 
     // 下载文件 返回块
@@ -41,13 +47,12 @@ public class NetSystem {
     // 上传文件完毕之后给网络内所有在线节点更新最新的文件列表
     // 传输的数据是 Map<String,LogicalFile> 对象序列化之后的数据
     public static void updateData(byte[] data){
-        String[] allOnlineIdList = getOnlineId();
-        for (String aimID : allOnlineIdList){
+        for (var aimID : getOnlineId()){
             // aimID : FileSystem obj updateData(data)
         }
     }
 
-    public static byte[] getLastestData(){
+    private static byte[] getLatestData(){
         String oneId = getOnlineId()[(int)(Math.random() * getOnlineId().length)];
         byte[] data = null;
         // data = aimID.FileSystem.getMyData();

@@ -1,6 +1,7 @@
 package org.pstoragebox.netsystem.UdpGroupMulticast;
 
 import org.pstoragebox.netsystem.Tcp.TcpService;
+import org.pstoragebox.tools.FormatSystemPrint;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -22,13 +23,13 @@ public class GpMuReceive extends Thread {
 //                    System.out.println("self alive");
                 }
                 else {
-                    System.out.println("Found Node: " + msg[1]+" at "+msg[0]);
+                    FormatSystemPrint.printInfo("Found Node: " + msg[1]+" at "+msg[0]);
                     TcpService.connTo(InetAddress.getByName(msg[0]),msg[1]);
                 }
 
 //                Thread.sleep(2000);
             } catch (SocketException e) {
-                System.out.println("LOG: UdpSocketClosed Ex.");
+                FormatSystemPrint.printError("LOG: UdpSocketClosed Ex.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

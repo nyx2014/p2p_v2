@@ -31,7 +31,10 @@ public class LogicalFileBlock {
         String value = blockLocations.get(randomKey);
         byte[] data = NetSystem.downloadFile(randomKey,value);
 
-        NetSystem.uploadFile(randomNode,data,value);
+        if (NetSystem.uploadFile(randomNode,data,value))
+            MyLogger.getMyLogger().log(Level.INFO,"成功");
+        else
+            MyLogger.getMyLogger().log(Level.WARNING,"网络模块报告失败");
         blockLocations.put(randomNode,value);
     }
 

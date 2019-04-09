@@ -1,6 +1,7 @@
 package org.pstoragebox.netsystem.Tcp;
 
 import io.vertx.core.Vertx;
+import org.pstoragebox.tools.FormatSystemPrint;
 import org.pstoragebox.tools.MyLogger;
 
 import java.net.InetAddress;
@@ -21,16 +22,16 @@ public class TcpService {
     public static void connTo(InetAddress targetIP, String myId) {
         if (v == null) throw new NullPointerException();
         if (!clients.containsKey(myId)) {
-            System.out.println("LOG: trying conn to " + targetIP.getCanonicalHostName());
+            FormatSystemPrint.printInfo("LOG: trying conn to " + targetIP.getCanonicalHostName());
             clients.put(myId, new TcpClient(myId, v, targetIP));
-            MyLogger.getMyLogger().log(Level.FINER,"LOG: currently connected " + clients.size() + " near node(s).");
+            FormatSystemPrint.printInfo("LOG: currently connected " + clients.size() + " near node(s).");
 //            System.out.println("LOG: currently connected " + clients.size() + " near node(s).");
         }
     }
 
     static void disConnFrom(String myId) {
         clients.remove(myId);
-        MyLogger.getMyLogger().log(Level.FINER,"LOG: currently connected " + clients.size() + " near node(s).");
+        FormatSystemPrint.printInfo("LOG: currently connected " + clients.size() + " near node(s).");
     }
 
     public void stopService() {
@@ -52,7 +53,7 @@ public class TcpService {
     }
 
     public static Boolean sendBlockTo(String targetId, byte[] blockData, String filePath) {
-        System.out.println("sendBlockTo:"+targetId + "#" + Arrays.toString(blockData) + "#" + filePath);
+        FormatSystemPrint.printInfo("sendBlockTo:"+targetId + "#" + Arrays.toString(blockData) + "#" + filePath);
         if (!clients.containsKey(targetId)) return false;
         else {
             clients.get(targetId).sendBlock(blockData, filePath);

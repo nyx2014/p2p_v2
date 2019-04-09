@@ -6,6 +6,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
+import org.pstoragebox.tools.FormatSystemPrint;
 
 import java.net.InetAddress;
 
@@ -32,10 +33,10 @@ class TcpClient {
                     else System.out.println("SERVER says: " + buf_str);
                 });
                 netSocket.closeHandler(event -> {
-                    System.out.println("LOG: TcpClient Socket closed here.");
+                    FormatSystemPrint.printInfo("LOG: TcpClient Socket closed here.");
                     TcpService.disConnFrom(myId);
                 });
-            } else System.out.println("failed connect Server.");
+            } else FormatSystemPrint.printError("failed connect Server.");
         });
     }
 
