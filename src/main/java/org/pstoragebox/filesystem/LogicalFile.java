@@ -27,7 +27,7 @@ public class LogicalFile {
             LogicalFileBlock tempBlock = new LogicalFileBlock(myId,filePath,tempData);
             int lastBackupNum = backupNum -1;
             while (lastBackupNum > 0){
-                // tempBlock.addABackup();
+                tempBlock.addABackup();
                 lastBackupNum--;
             }
             fileBlockList.add(tempBlock);

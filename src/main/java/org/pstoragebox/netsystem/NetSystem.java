@@ -37,4 +37,20 @@ public class NetSystem {
 
         return status;
     }
+
+    // 上传文件完毕之后给网络内所有在线节点更新最新的文件列表
+    // 传输的数据是 Map<String,LogicalFile> 对象序列化之后的数据
+    public static void updateData(byte[] data){
+        String[] allOnlineIdList = getOnlineId();
+        for (String aimID : allOnlineIdList){
+            // aimID : FileSystem obj updateData(data)
+        }
+    }
+
+    public static byte[] getLastestData(){
+        String oneId = getOnlineId()[(int)(Math.random() * getOnlineId().length)];
+        byte[] data = null;
+        // data = aimID.FileSystem.getMyData();
+        return data;
+    }
 }
