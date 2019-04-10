@@ -29,7 +29,7 @@ public class GpMuReceive extends Thread {
 
 //                Thread.sleep(2000);
             } catch (SocketException e) {
-                FormatSystemPrint.printError("LOG: UdpSocketClosed Ex.");
+                FormatSystemPrint.printError("UdpSocketClosed.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -5,8 +5,11 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public class AutoIdGenerator {
-    public static String getId(){
+    public static String getId() throws IOException {
+        if (userID==null)
+            throw new IOException("ID_GET_ERROR");
         return userID;
+
     }
 
     private static String initID(){
@@ -15,7 +18,7 @@ public class AutoIdGenerator {
         if (!file.exists()){
             String id = UUID.randomUUID().toString().replace("-", "");
             try {
-                file.createNewFile();
+                if(!file.createNewFile()) return null;
                 FileWriter fileWriter=new FileWriter(file.getAbsoluteFile());
                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                 bufferedWriter.write(id);
@@ -34,7 +37,7 @@ public class AutoIdGenerator {
                 MyLogger.getMyLogger().log(Level.FINER,e.toString());
             }
         }
-        return "ID_GET_ERROR";
+        return null;
     }
 
     private static final String userID = initID();

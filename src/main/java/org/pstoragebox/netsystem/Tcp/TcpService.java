@@ -1,12 +1,17 @@
 package org.pstoragebox.netsystem.Tcp;
 
 import io.vertx.core.Vertx;
+import org.pstoragebox.filesystem.FileSystem;
+import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.tools.FormatSystemPrint;
 import org.pstoragebox.tools.MyLogger;
 
 import java.net.InetAddress;
 import java.util.*;
 import java.util.logging.Level;
+
+import static org.pstoragebox.netsystem.NetSystem.getOnlineId;
+import static org.pstoragebox.tools.FormatSystemPrint.printInfo;
 
 public class TcpService {
     static final Integer PORT = 5555;
@@ -22,16 +27,19 @@ public class TcpService {
     public static void connTo(InetAddress targetIP, String myId) {
         if (v == null) throw new NullPointerException();
         if (!clients.containsKey(myId)) {
-            FormatSystemPrint.printInfo("LOG: trying conn to " + targetIP.getCanonicalHostName());
+            printInfo("LOG: trying conn to " + targetIP.getCanonicalHostName());
             clients.put(myId, new TcpClient(myId, v, targetIP));
-            FormatSystemPrint.printInfo("LOG: currently connected " + clients.size() + " near node(s).");
+
+            new FileSystem("","").updateData(
+                    clients.values().iterator().next().sendInfoRequest());
+            printInfo("LOG: currently connected " + clients.size() + " near node(s).");
 //            System.out.println("LOG: currently connected " + clients.size() + " near node(s).");
         }
     }
 
     static void disConnFrom(String myId) {
         clients.remove(myId);
-        FormatSystemPrint.printInfo("LOG: currently connected " + clients.size() + " near node(s).");
+        printInfo("LOG: currently connected " + clients.size() + " near node(s).");
     }
 
     public void stopService() {
@@ -53,10 +61,13 @@ public class TcpService {
     }
 
     public static Boolean sendBlockTo(String targetId, byte[] blockData, String filePath) {
-        FormatSystemPrint.printInfo("sendBlockTo:"+targetId + "#" + Arrays.toString(blockData) + "#" + filePath);
+        printInfo("sendBlockTo:"+targetId + "#" + Arrays.toString(blockData) + "#" + filePath);
         if (!clients.containsKey(targetId)) return false;
         else {
             clients.get(targetId).sendBlock(blockData, filePath);
+            //
+            var myData = new FileSystem("","").getMyData();
+            clients.values().forEach(tcpClient -> tcpClient.sendLatestInfo(myData));
             return true;
         }
     }

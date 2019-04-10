@@ -37,7 +37,7 @@ public class FileSystem {
 
     private void sentNewData(){
         byte[] data = writeInto(logicalFileList);
-        NetSystem.updateData(data);
+//        NetSystem.updateData(data);
     }
 
     public byte[] getMyData(){
