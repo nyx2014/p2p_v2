@@ -3,12 +3,17 @@ package org.pstoragebox.netsystem.Tcp;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
+import io.vertx.core.net.NetSocket;
 import org.pstoragebox.filesystem.FileSystem;
+import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.ByteMerge;
 import org.pstoragebox.tools.FileStream;
 import org.pstoragebox.tools.FormatSystemPrint;
 
-import static org.pstoragebox.tools.FormatSystemPrint.printRemoteMessage;
+import java.io.IOException;
+import java.util.Arrays;
+
+import static org.pstoragebox.tools.FormatSystemPrint.*;
 
 class TcpServer {
     private static NetServer netServer;
@@ -20,8 +25,12 @@ class TcpServer {
             event.handler(buffer -> {
                 var remote = event.remoteAddress().host();
                 if (waitForSNDFilePath != null) {
-                    printRemoteMessage(remote,"Sent Block, Saving...");
-                    FileStream.writeFileBlockToRealSystem(waitForSNDFilePath, buffer.getBytes());
+                    printRemoteMessage(remote, "Sent Block, Saving...");
+                    try {
+                        FileStream.writeFileBlockToRealSystem(waitForSNDFilePath, buffer.getBytes());
+                    } catch (IOException e) {
+                        printError("Failed saving block to disk.");
+                    }
                     waitForSNDFilePath = null;
                 }
 
@@ -31,27 +40,33 @@ class TcpServer {
                         var param = buf_str.split("#");
                         System.out.println("REQ: remote id:" + param[1]);
                         System.out.println("REQ: req file:" + param[2]);
-                        printRemoteMessage(remote,"Requesting Block: " + buf_str);
-                        event.write(Buffer.buffer(
-                                ByteMerge.byteMerger("REQ".getBytes(), FileStream.readFileBlockFromRealSystem(param[2]))));
+                        printRemoteMessage(remote, "Requesting Block: " + buf_str);
+                        try {
+                            event.write(Buffer.buffer(
+                                    ByteMerge.byteMerger("REQ".getBytes(), FileStream.readFileBlockFromRealSystem(param[2]))));
+                        } catch (IOException e) {
+                            printError("Failed read block from disk.");
+                        }
                         break;
                     case "SND":
                         waitForSNDFilePath = buf_str.substring(3);
                         System.out.println("SND: filePath:" + waitForSNDFilePath);
-                        printRemoteMessage(remote,"Sending Block: " + waitForSNDFilePath);
+                        printRemoteMessage(remote, "Sending Block: " + waitForSNDFilePath);
                         break;
                     case "INF":
-                        event.write(Buffer.buffer(
-                                ByteMerge.byteMerger("INF".getBytes(), new FileSystem("", "").getMyData())
-                        ));
-                        printRemoteMessage(remote,"Want Latest Info.");
+                        printRemoteMessage(remote, "Want Latest Info.");
+                        var s = PStorageBox.getFileSystem().getMyData();
+                        var k = ByteMerge.byteMerger("INF".getBytes(), s);
+                        printWarn(Arrays.toString(s));
+                        printWarn(Arrays.toString(k));
+                        event.write(Buffer.buffer(k));
                         break;
                     case "UPD":
-                        new FileSystem("", "").updateData(buf_str.substring(3).getBytes());
-                        printRemoteMessage(remote,"Sent Latest Info.");
+                        PStorageBox.getFileSystem().updateData(buf_str.substring(3).getBytes());
+                        printRemoteMessage(remote, "Sent Latest Info.");
                         break;
                     default:
-                        printRemoteMessage(remote,"Says: " + buffer.toString());
+                        printRemoteMessage(remote, "Says: " + buffer.toString());
                         event.write(Buffer.buffer("received! My addr is: " + event.localAddress()));
                         break;
                 }

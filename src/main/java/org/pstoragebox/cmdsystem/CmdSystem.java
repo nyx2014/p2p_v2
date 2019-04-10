@@ -4,27 +4,33 @@ import org.pstoragebox.filesystem.FileSystem;
 import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.netsystem.NetworkService;
 import org.pstoragebox.netsystem.Tcp.TcpService;
+import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
 import org.pstoragebox.tools.FormatSystemPrint;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import static org.pstoragebox.tools.FormatSystemPrint.*;
 
 public class CmdSystem {
-    public static void  runCmdSystem(FileSystem fileSystem) {
-        controller = fileSystem;
+    public static void  runCmdSystem() {
         help();
-        printMessage("Please enter the command");
-        var notEnd = true;
-        while (notEnd) {
-            String input = getNextLine();
-            String[] inputs = input.split(" ");
-            switch (inputs[0]) {
+        printMessage("Please enter command");
+//        printHead();
+        while (true) {
+            var inputs = getNextLine().split(" ");
+            if (inputs.length!=0) switch (inputs[0]) {
                 case "cls":
                     cls();
+                    break;
+                case "sh":
+                    printWarn(Arrays.toString(PStorageBox.getFileSystem().getMyData()));
+                    break;
+                case "ss":
+                    TcpService.sendinforeq();
                     break;
                 case "ls":
                     ls();
@@ -39,43 +45,44 @@ public class CmdSystem {
                     }
                     break;
                 case "friends":
-                    printInfo("There are "+NetSystem.getOnlineNodes()+" friend(s).");
+                    printInfo("There are " + NetSystem.getOnlineNodes() + " friend(s).");
                     for (var friendId : NetSystem.getOnlineId()) {
-                        printInfo("friend: "+friendId);
+                        printInfo("friend: " + friendId);
                     }
                     break;
                 case "conn":
-                    if (inputs.length<3){
-                        printError("Invalid input");break;
+                    if (inputs.length < 3) {
+                        printError("Invalid input");
+                        break;
                     }
                     try {
                         TcpService.connTo(InetAddress.getByName(inputs[1]), inputs[2]);
                     } catch (UnknownHostException e) {
-                        printError("UnknownHostException: "+inputs[1]);
-                        e.printStackTrace();
+                        printError("UnknownHostException: " + inputs[1]);
+                        return;
                     }
 
-                    printInfo("There are "+NetSystem.getOnlineNodes()+" friend(s).");
+                    printInfo("There are " + NetSystem.getOnlineNodes() + " friend(s).");
                     for (var friendId : NetSystem.getOnlineId()) {
-                        printInfo("friend: "+friendId);
+                        printInfo("friend: " + friendId);
                     }
                     break;
                 case "upload":
-                    if (inputs.length<3){
-                        printError("Invalid input");break;
+                    if (inputs.length < 3) {
+                        printError("Invalid input");
+                        break;
                     }
                     upload(inputs[1], inputs[2]);
                     break;
                 case "download":
-                    if (inputs.length<3){
-                        printError("Invalid input");break;
+                    if (inputs.length < 3) {
+                        printError("Invalid input");
+                        break;
                     }
                     download(inputs[1], inputs[2]);
                     break;
                 case "exit":
-                    notEnd = false;
-                    NetworkService.stopNetworkService();
-                    break;
+                    PStorageBox.exit();
                 case "help":
                     help();
                     break;
@@ -85,23 +92,29 @@ public class CmdSystem {
                     break;
             }
         }
-        AnsiConsole.systemUninstall();
-        System.exit(0);
     }
 
     private static void ls() {
-        String[] fileNames = controller.lsCommand();
+        String[] fileNames = PStorageBox.getFileSystem().lsCommand();
         for (String fileName:fileNames) {
             printMessage(fileName);
         }
     }
 
     private static void upload(String filePath,String fileName) {
-        controller.uploadCommand(fileName,filePath);
+        try {
+            PStorageBox.getFileSystem().uploadCommand(fileName,filePath);
+        } catch (IOException e) {
+            printError("发生错误，上传失败");
+        }
     }
 
     private static void download(String fileName,String filePath) {
-        controller.downloadCommand(fileName,filePath);
+        try {
+            PStorageBox.getFileSystem().downloadCommand(fileName,filePath);
+        } catch (IOException e) {
+            printError("发生错误，下载失败");
+        }
     }
 
     private static void help(){
@@ -118,5 +131,4 @@ public class CmdSystem {
         printMessage("exit        ：退出系统");
     }
 
-    private static FileSystem controller;
 }

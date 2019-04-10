@@ -14,23 +14,28 @@ public class FormatSystemPrint {
     }
 
     public static void printInfo(String message) {
-        System.out.println(ansi().fg(GREEN).a(HEAD).reset().a(message));
+        System.out.println(ansi().eraseLine(Erase.ALL).fg(GREEN).a(HEAD).reset().a(message));
+    }
+
+    public static void printWarn(String message) {
+        System.out.println(ansi().eraseLine(Erase.ALL).fg(YELLOW).a(HEAD).reset().a(message));
     }
 
     public static void printError(String message) {
-        System.out.println(ansi().fg(RED).a(HEAD).reset().a(message));
+        System.out.println(ansi().eraseLine(Erase.ALL).fg(RED).a(HEAD).reset().a(message));
     }
 
     public static void printRemoteMessage(String remote, String message) {
-        System.out.println(ansi().fg(BLUE).a(" [ " + remote + " ] ").reset().a(message));
+        System.out.println(ansi().eraseLine(Erase.BACKWARD).fg(CYAN).a(" [ " + remote + " ] ").reset().a(message));
     }
 
     public static void cls() {
         System.out.println(ansi().eraseScreen());
     }
 
-    static void printHead() {
-        System.out.print(ansi().fg(YELLOW).a(HEAD).reset());
+    private static void printHead() {
+//        System.out.println();
+        System.out.print(ansi().fg(WHITE).a(HEAD).reset());
     }
 
     public static String getNextLine() {

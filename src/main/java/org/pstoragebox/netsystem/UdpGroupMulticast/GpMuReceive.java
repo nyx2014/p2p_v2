@@ -19,15 +19,7 @@ public class GpMuReceive extends Thread {
             try {
                 socket.receive(packet);
                 var msg = new String(packet.getData(), 0, packet.getLength()).split("#");
-                if (InetAddress.getLocalHost().getHostAddress().equals(msg[0])){
-//                    System.out.println("self alive");
-                }
-                else {
-                    FormatSystemPrint.printInfo("Found Node: " + msg[1]+" at "+msg[0]);
-                    TcpService.connTo(InetAddress.getByName(msg[0]),msg[1]);
-                }
-
-//                Thread.sleep(2000);
+                if (!InetAddress.getLocalHost().getHostAddress().equals(msg[0])) TcpService.connTo(InetAddress.getByName(msg[0]),msg[1]);
             } catch (SocketException e) {
                 FormatSystemPrint.printError("UdpSocketClosed.");
             } catch (Exception e) {

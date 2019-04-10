@@ -16,7 +16,12 @@ public class LogicalFileBlock {
 
     LogicalFileBlock(String myId,String filePath,byte[] data) {
         blockLocations = new HashMap<>();
-        FileStream.writeFileBlockToRealSystem(filePath,data);
+        try {
+            FileStream.writeFileBlockToRealSystem(filePath,data);
+        } catch (IOException e) {
+            printError("Failed write block to disk");
+            return;
+        }
         blockLocations.put(myId,filePath);
     }
 

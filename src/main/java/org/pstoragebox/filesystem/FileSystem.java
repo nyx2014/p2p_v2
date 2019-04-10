@@ -14,46 +14,45 @@ public class FileSystem {
         logicalFileList = new HashMap<>();
     }
 
-    public String[] lsCommand(){
-        Set<String> keys=logicalFileList.keySet();
-        Iterator<String> iterator1=keys.iterator();
+    public String[] lsCommand() {
+        Set<String> keys = logicalFileList.keySet();
+        Iterator<String> iterator1 = keys.iterator();
         String[] fileName = new String[keys.size()];
         int i = 0;
-        while (iterator1.hasNext()){
+        while (iterator1.hasNext()) {
             fileName[i++] = iterator1.next();
         }
         return fileName;
     }
 
-    public void uploadCommand(String fileName,String filePath){
-        byte[] data = FileStream.readFile(filePath);
-        LogicalFile lFile = new LogicalFile(myId,fileName,backupNum,data);
-        logicalFileList.put(fileName,lFile);
+    public void uploadCommand(String fileName, String filePath) throws IOException {
+        logicalFileList.put(fileName, new LogicalFile(myId, fileName, backupNum, FileStream.readFile(filePath)));
     }
 
-    public void downloadCommand(String fileName,String filePath){
-        FileStream.saveFile(filePath,logicalFileList.get(fileName).downloadFile());
+    public void downloadCommand(String fileName, String filePath) throws IOException {
+        FileStream.saveFile(filePath, logicalFileList.get(fileName).downloadFile());
     }
 
-    private void sentNewData(){
+    private void sentNewData() {
         byte[] data = writeInto(logicalFileList);
 //        NetSystem.updateData(data);
     }
 
-    public byte[] getMyData(){
+    public byte[] getMyData() {
         return writeInto(logicalFileList);
     }
 
-    public void updateData(byte[] data){
+    public void updateData(byte[] data) {
         logicalFileList = restore(data);
     }
 
     /**
      * 把对象转变成二进制
+     *
      * @param obj 待转换的对象
      * @return 返回二进制数组
      */
-    private byte[] writeInto(Map<String,LogicalFile> obj) {
+    private byte[] writeInto(Map<String, LogicalFile> obj) {
         ByteArrayOutputStream bos = null;
         ObjectOutputStream oos = null;
         try {
@@ -65,14 +64,14 @@ public class FileSystem {
         } catch (IOException e) {
 
         } finally {
-            if(oos != null) {
+            if (oos != null) {
                 try {
                     oos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(bos != null) {
+            if (bos != null) {
                 try {
                     bos.close();
                 } catch (IOException e) {
@@ -85,27 +84,28 @@ public class FileSystem {
 
     /**
      * 把二进制数组的数据转回对象
+     *
      * @param b
      * @return
      */
-    private Map<String,LogicalFile> restore(byte[] b) {
+    private Map<String, LogicalFile> restore(byte[] b) {
         ByteArrayInputStream bis = null;
         ObjectInputStream ois = null;
         try {
             //读取二进制数据并转换成对象
             bis = new ByteArrayInputStream(b);
             ois = new ObjectInputStream(bis);
-            return (Map<String,LogicalFile>)ois.readObject();
+            return (Map<String, LogicalFile>) ois.readObject();
         } catch (ClassNotFoundException | IOException e) {
         } finally {
-            if(ois != null) {
+            if (ois != null) {
                 try {
                     ois.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if(bis != null) {
+            if (bis != null) {
                 try {
                     bis.close();
                 } catch (IOException e) {
@@ -118,7 +118,7 @@ public class FileSystem {
 
     private String rootCatalog;
     private String myId;
-    private Map<String,LogicalFile> logicalFileList;
+    private Map<String, LogicalFile> logicalFileList;
 
     private final static int backupNum = 2;
 }
