@@ -36,7 +36,6 @@ public class FileSystem{
 
     private void sentNewData() {
         byte[] data = writeInto(logicalFileList);
-//        NetSystem.updateData(data);
     }
 
     public byte[] getMyData() {
@@ -44,7 +43,7 @@ public class FileSystem{
     }
 
     public void updateData(byte[] data) {
-        logicalFileList = restore(data);
+        logicalFileList.putAll(restore(data));
     }
 
     /**
