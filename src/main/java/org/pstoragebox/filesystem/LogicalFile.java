@@ -1,9 +1,10 @@
 package org.pstoragebox.filesystem;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LogicalFile {
+public class LogicalFile implements Serializable {
 
     public LogicalFile(String myId,String fileName, int backupNum, byte[] data) {
         this.fileName = fileName;

@@ -6,13 +6,14 @@ import org.pstoragebox.tools.FormatSystemPrint;
 import org.pstoragebox.tools.MyLogger;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
 import static org.pstoragebox.tools.FormatSystemPrint.*;
 
-public class LogicalFileBlock {
+public class LogicalFileBlock implements Serializable {
 
     LogicalFileBlock(String myId,String filePath,byte[] data) {
         blockLocations = new HashMap<>();

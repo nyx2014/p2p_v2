@@ -20,7 +20,7 @@ public class PStorageBox {
     public static void run() {
         AnsiConsole.systemInstall();
         initSystem();
-        saveSystem();
+        SystemGuarder.saveSystem();
         CmdSystem.runCmdSystem();
     }
 
@@ -53,41 +53,17 @@ public class PStorageBox {
         printMessage("共享文件夹目录初始化完成");
 
         fileSystem = new FileSystem(localFilePath, systemID);
-        printMessage("文件系统初始化完成");
+        if (SystemGuarder.recoverSystem()){
+            printMessage("系统恢复完成！");
+        }else {
+            printMessage("文件系统初始化完成");
+        }
 
         NetworkService.startNetworkService();
         printMessage("网络系统初始化完成");
     }
 
-    private static void saveSystem() {
-        try {
-            File file = new File(configFilePath);
-            if (!file.exists())
-                if (!file.createNewFile())
-                    printError("failed create new file");
-            FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write("SystemMessage123");
-            bufferedWriter.close();
-            fileWriter.close();
-        } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
-        }
-    }
 
-    private static void recoverSystem() {
-        File file = new File(configFilePath);
-        if (!file.exists()) {
-            MyLogger.getMyLogger().log(Level.FINER, "系统备份不存在");
-            return;
-        }
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
-        }
-    }
 
     private static FileSystem fileSystem;
-    private static final String configFilePath = ConfigPathTool.get("normalConfig"); // "./etc/normalConfig.txt";
 }

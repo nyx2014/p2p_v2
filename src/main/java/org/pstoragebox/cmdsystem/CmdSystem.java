@@ -7,6 +7,7 @@ import org.pstoragebox.netsystem.Tcp.TcpService;
 import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
 import org.pstoragebox.tools.FormatSystemPrint;
+import org.pstoragebox.tools.SystemGuarder;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -104,6 +105,7 @@ public class CmdSystem {
     private static void upload(String filePath,String fileName) {
         try {
             PStorageBox.getFileSystem().uploadCommand(fileName,filePath);
+            SystemGuarder.saveSystem();
         } catch (IOException e) {
             printError("发生错误，上传失败");
         }

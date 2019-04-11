@@ -31,8 +31,6 @@ public class FileStream {
         if (file.exists() && file.isFile()) {
             printError("文件块重名，无法保存文件");
             throw new IOException("文件块重名，无法保存文件");
-//            MyLogger.getMyLogger().log(Level.FINER,"文件块重名，无法保存文件");
-//            return;
         }
         try {
             if (file.createNewFile()) {

@@ -6,7 +6,7 @@ import org.pstoragebox.tools.FileStream;
 import java.io.*;
 import java.util.*;
 
-public class FileSystem {
+public class FileSystem{
 
     public FileSystem(String rootCatalog, String myId) {
         this.rootCatalog = rootCatalog;
@@ -27,6 +27,7 @@ public class FileSystem {
 
     public void uploadCommand(String fileName, String filePath) throws IOException {
         logicalFileList.put(fileName, new LogicalFile(myId, fileName, backupNum, FileStream.readFile(filePath)));
+        //getMyData();
     }
 
     public void downloadCommand(String fileName, String filePath) throws IOException {
