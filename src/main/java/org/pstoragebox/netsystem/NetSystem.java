@@ -1,7 +1,6 @@
 package org.pstoragebox.netsystem;
 
 import org.pstoragebox.netsystem.Tcp.TcpService;
-import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
 import org.pstoragebox.tools.FileStream;
 
@@ -11,10 +10,6 @@ public class NetSystem {
     // 获取在线主机的ID
     public static String[] getOnlineId() {
         return TcpService.getOnlineClientList().toArray(String[]::new);
-    }
-
-    public static Integer getOnlineNodes() {
-        return TcpService.getOnlineClientsCount();
     }
 
     // 上传文件 返回结果
@@ -30,18 +25,18 @@ public class NetSystem {
                 : TcpService.requestBlockTo(aimID, filePath);
     }
 
-    // 加入网络
-    public static boolean joinNet() {
-        boolean status = false;
-
-        return status;
-    }
-
-    // 离开网络
-    public static boolean leaveNet() {
-        var status = false;
-
-        return status;
-    }
+//    // 加入网络
+//    public static boolean joinNet() {
+//        boolean status = false;
+//
+//        return status;
+//    }
+//
+//    // 离开网络
+//    public static boolean leaveNet() {
+//        var status = false;
+//
+//        return status;
+//    }
 
 }

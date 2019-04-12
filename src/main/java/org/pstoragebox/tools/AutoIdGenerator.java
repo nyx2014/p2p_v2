@@ -1,7 +1,5 @@
 package org.pstoragebox.tools;
 
-import org.fusesource.jansi.AnsiConsole;
-
 import java.io.*;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -11,7 +9,6 @@ public class AutoIdGenerator {
         if (userID == null)
             throw new IOException("ID_GET_ERROR");
         return userID;
-
     }
 
     private static String initID() {
@@ -34,7 +31,7 @@ public class AutoIdGenerator {
                 fileWriter.close();
                 return id;
             } catch (IOException e) {
-                MyLogger.getMyLogger().log(Level.FINER, e.toString());
+                MyLogger.get().log(Level.FINER, e.toString());
             }
 
         } else {
@@ -42,7 +39,7 @@ public class AutoIdGenerator {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
                 return bufferedReader.readLine();
             } catch (Exception e) {
-                MyLogger.getMyLogger().log(Level.FINER, e.toString());
+                MyLogger.get().log(Level.FINER, e.toString());
             }
         }
         return null;

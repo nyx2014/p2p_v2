@@ -2,9 +2,15 @@ package org.pstoragebox.filesystem;
 
 import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.tools.FileStream;
+import org.pstoragebox.tools.FormatSystemPrint;
+import org.pstoragebox.tools.MyLogger;
+import org.pstoragebox.tools.ObjSerialize;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+
+import static org.pstoragebox.tools.FormatSystemPrint.*;
 
 public class FileSystem{
 
@@ -25,25 +31,48 @@ public class FileSystem{
         return fileName;
     }
 
-    public void uploadCommand(String fileName, String filePath) throws IOException {
+    public void uploadCommand(final String fileName,final String filePath) throws IOException {
         logicalFileList.put(fileName, new LogicalFile(myId, fileName, backupNum, FileStream.readFile(filePath)));
         //getMyData();
     }
 
-    public void downloadCommand(String fileName, String filePath) throws IOException {
-        FileStream.saveFile(filePath, logicalFileList.get(fileName).downloadFile());
+    public void downloadCommand(final String fileName,final String filePath) throws IOException {
+        if (!logicalFileList.containsKey(fileName)) throw new IOException("File not exist");
+        else FileStream.saveFile(filePath, logicalFileList.get(fileName).downloadFile());
     }
 
-    private void sentNewData() {
-        byte[] data = writeInto(logicalFileList);
-    }
-
+    @Deprecated
     public byte[] getMyData() {
         return writeInto(logicalFileList);
     }
 
+    public String getLogicalFileList(){
+        try {
+            return ObjSerialize.serializeToString(logicalFileList);
+        } catch (IOException e) {
+            MyLogger.get().log(Level.SEVERE,e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void setLogicalFileList(final String serializedObj){
+        try {
+            logicalFileList.putAll((Map<String, LogicalFile>) ObjSerialize.deserializeToObject(serializedObj));
+            printInfo("收到新的LogicalFileList Info并已合并成功");
+            printInfo("文件系统已更新 请输入ls查看");
+        } catch (IOException | ClassNotFoundException e) {
+            printError("反序列化失败");
+            MyLogger.get().log(Level.SEVERE,e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Deprecated
     public void updateData(byte[] data) {
-        logicalFileList.putAll(restore(data));
+        var d = restore(data);
+        if (d!=null) logicalFileList.putAll(d);
+        else MyLogger.get().log(Level.SEVERE,"数据为空");
     }
 
     /**

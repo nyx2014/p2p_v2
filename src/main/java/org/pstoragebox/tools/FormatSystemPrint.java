@@ -8,25 +8,26 @@ import static org.fusesource.jansi.Ansi.Color.*;
 public class FormatSystemPrint {
     private static final String HEAD = "PStorageBox > ";
 
+    @Deprecated
     public static void printMessage(String message) {
         printInfo(message);
 //        System.out.println(ansi().fg(YELLOW).a(HEAD).reset().a(message));
     }
 
     public static void printInfo(String message) {
-        System.out.println(ansi().eraseLine(Erase.ALL).fg(GREEN).a(HEAD).reset().a(message));
+        System.out.println(ansi().fg(GREEN).a(HEAD).reset().a(message));
     }
 
     public static void printWarn(String message) {
-        System.out.println(ansi().eraseLine(Erase.ALL).fg(YELLOW).a(HEAD).reset().a(message));
+        System.out.println(ansi().fg(YELLOW).a(HEAD).reset().a(message));
     }
 
     public static void printError(String message) {
-        System.out.println(ansi().eraseLine(Erase.ALL).fg(RED).a(HEAD).reset().a(message));
-    }
+        System.out.println(ansi().fg(RED).a(HEAD).reset().a(message));
+    }//.eraseLine(Erase.ALL)
 
     public static void printRemoteMessage(String remote, String message) {
-        System.out.println(ansi().eraseLine(Erase.BACKWARD).fg(CYAN).a(" [ " + remote + " ] ").reset().a(message));
+        System.out.println(ansi().fg(CYAN).a(" [ " + remote + " ] ").reset().a(message));
     }
 
     public static void cls() {
@@ -40,10 +41,10 @@ public class FormatSystemPrint {
 
     public static String getNextLine() {
         var scan = new Scanner(System.in);
-        printHead();
+//        printHead();
         var data = scan.nextLine();
         while (data.equals("")) {
-            printHead();
+//            printHead();
             data = scan.nextLine();
         }
         return data;

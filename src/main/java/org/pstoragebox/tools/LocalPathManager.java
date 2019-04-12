@@ -39,14 +39,14 @@ public class LocalPathManager {
                 fileWriter.close();
                 return localFilePath;
             } catch (Exception e) {
-                MyLogger.getMyLogger().log(Level.FINER, e.toString());
+                MyLogger.get().log(Level.FINER, e.toString());
             }
         } else {
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
                 return bufferedReader.readLine();
             } catch (Exception e) {
-                MyLogger.getMyLogger().log(Level.FINER, e.toString());
+                MyLogger.get().log(Level.FINER, e.toString());
             }
         }
         return null;

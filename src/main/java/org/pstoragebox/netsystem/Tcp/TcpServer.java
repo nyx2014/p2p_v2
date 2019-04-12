@@ -3,17 +3,14 @@ package org.pstoragebox.netsystem.Tcp;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
-import io.vertx.core.net.NetSocket;
-import org.pstoragebox.filesystem.FileSystem;
 import org.pstoragebox.system.PStorageBox;
-import org.pstoragebox.tools.ByteMerge;
 import org.pstoragebox.tools.FileStream;
 import org.pstoragebox.tools.FormatSystemPrint;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import static org.pstoragebox.tools.FormatSystemPrint.*;
+import static org.pstoragebox.tools.FormatSystemPrint.printError;
+import static org.pstoragebox.tools.FormatSystemPrint.printRemoteMessage;
 
 class TcpServer {
     private static NetServer netServer;
@@ -37,33 +34,30 @@ class TcpServer {
                 var buf_str = buffer.toString();
                 switch (buf_str.substring(0, 3)) {
                     case "REQ":
-                        var param = buf_str.split("#");
-                        System.out.println("REQ: remote id:" + param[1]);
-                        System.out.println("REQ: req file:" + param[2]);
-                        printRemoteMessage(remote, "Requesting Block: " + buf_str);
+                        final var param = buf_str.split("#");
+                        printRemoteMessage(remote, "Request ID: " + param[1]);
+                        printRemoteMessage(remote, "Requesting Block: " + param[2]);
                         try {
-                            event.write(Buffer.buffer(
-                                    ByteMerge.byteMerger("REQ".getBytes(), FileStream.readFileBlockFromRealSystem(param[2]))));
+                            event.write(Buffer.buffer("RPL"));
+                            Thread.sleep(200);
+                            event.write(Buffer.buffer(FileStream.readFileBlockFromRealSystem(param[2])));
                         } catch (IOException e) {
                             printError("Failed read block from disk.");
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                         break;
                     case "SND":
                         waitForSNDFilePath = buf_str.substring(3);
-                        System.out.println("SND: filePath:" + waitForSNDFilePath);
                         printRemoteMessage(remote, "Sending Block: " + waitForSNDFilePath);
                         break;
                     case "INF":
                         printRemoteMessage(remote, "Want Latest Info.");
-                        var s = PStorageBox.getFileSystem().getMyData();
-                        var k = ByteMerge.byteMerger("INF".getBytes(), s);
-                        printWarn(Arrays.toString(s));
-                        printWarn(Arrays.toString(k));
-                        event.write(Buffer.buffer(k));
+                        event.write(Buffer.buffer("INF" + PStorageBox.getFileSystem().getLogicalFileList()));
                         break;
                     case "UPD":
-                        PStorageBox.getFileSystem().updateData(buf_str.substring(3).getBytes());
                         printRemoteMessage(remote, "Sent Latest Info.");
+                        PStorageBox.getFileSystem().setLogicalFileList(buf_str.substring(3));
                         break;
                     default:
                         printRemoteMessage(remote, "Says: " + buffer.toString());

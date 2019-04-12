@@ -12,7 +12,7 @@ public class FileStream {
         if (file.exists() && file.isFile()) {
             printError("文件块重名，无法保存文件");
             throw new IOException("文件块重名，无法保存文件");
-//            MyLogger.getMyLogger().log(Level.FINER,"文件块重名，无法保存文件");
+//            MyLogger.get().log(Level.FINER,"文件块重名，无法保存文件");
 //            return;
         }
         try {
@@ -22,7 +22,7 @@ public class FileStream {
                 out.close();
             }
         } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
+            MyLogger.get().log(Level.FINER, e.toString());
         }
     }
 
@@ -39,7 +39,7 @@ public class FileStream {
                 out.close();
             }
         } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
+            MyLogger.get().log(Level.FINER, e.toString());
         }
     }
 
@@ -52,7 +52,7 @@ public class FileStream {
         if (fileSize > Integer.MAX_VALUE) {
             printError("file too big");
             throw new IOException("file too big");
-//            MyLogger.getMyLogger().log(Level.FINER,"file too big...");
+//            MyLogger.get().log(Level.FINER,"file too big...");
         }
         FileInputStream fi = null;
         try {
@@ -68,12 +68,12 @@ public class FileStream {
             if (offset != data.length) {
                 printError("Could not completely read file " + file.getName());
                 throw new IOException("Could not completely read file " + file.getName());
-//                MyLogger.getMyLogger().log(Level.FINER,"Could not completely read file "
+//                MyLogger.get().log(Level.FINER,"Could not completely read file "
 //                        + file.getName());
             }
             fi.close();
         } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
+            MyLogger.get().log(Level.FINER, e.toString());
         }
 
         return data;
@@ -86,7 +86,7 @@ public class FileStream {
         if (fileSize > Integer.MAX_VALUE) {
             printError("file too big");
             throw new IOException("file too big");
-//            MyLogger.getMyLogger().log(Level.FINER, "file too big...");
+//            MyLogger.get().log(Level.FINER, "file too big...");
 //            return data;
         }
         FileInputStream fi = null;
@@ -103,12 +103,12 @@ public class FileStream {
             if (offset != data.length) {
                 printError("Could not completely read file " + file.getName());
                 throw new IOException("Could not completely read file " + file.getName());
-//                MyLogger.getMyLogger().log(Level.FINER, "Could not completely read file "
+//                MyLogger.get().log(Level.FINER, "Could not completely read file "
 //                        + file.getName());
             }
             fi.close();
         } catch (Exception e) {
-            MyLogger.getMyLogger().log(Level.FINER, e.toString());
+            MyLogger.get().log(Level.FINER, e.toString());
         }
 
         return data;

@@ -2,7 +2,6 @@ package org.pstoragebox.filesystem;
 
 import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.tools.FileStream;
-import org.pstoragebox.tools.FormatSystemPrint;
 import org.pstoragebox.tools.MyLogger;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class LogicalFileBlock implements Serializable {
     void addABackup(){
         String[] nodeList = NetSystem.getOnlineId();
         if (nodeList.length <= blockLocations.size()){
-            MyLogger.getMyLogger().log(Level.FINER,"备份创建失败，已存在备份数目大于等于节点数目");
+            MyLogger.get().log(Level.FINER,"备份创建失败，已存在备份数目大于等于节点数目");
             return;
         }
         String randomNode = nodeList[(int)(Math.random() * nodeList.length)];
@@ -49,10 +48,10 @@ public class LogicalFileBlock implements Serializable {
 
         if (NetSystem.uploadFile(randomNode,data,value))
             printInfo("upload success");
-//            MyLogger.getMyLogger().log(Level.INFO,"成功");
+//            MyLogger.get().log(Level.INFO,"成功");
         else
             printError("upload failed");
-//            MyLogger.getMyLogger().log(Level.WARNING,"网络模块报告失败");
+//            MyLogger.get().log(Level.WARNING,"网络模块报告失败");
         blockLocations.put(randomNode,value);
     }
 

@@ -38,8 +38,8 @@ public class LogicalFile implements Serializable {
     public byte[] downloadFile(){
         byte[] data = new byte[0];
         for (int i = 0; i < blockNum;i++){
-            byte[] tempData = fileBlockList.get(i).downloadBlock();
-            byte[] newdata = new byte[data.length+tempData.length];
+            var tempData = fileBlockList.get(i).downloadBlock();
+            var newdata = new byte[data.length+tempData.length];
             System.arraycopy(data, 0, newdata, 0, data.length);
             System.arraycopy(tempData, 0, newdata, data.length, tempData.length);
             data = newdata;

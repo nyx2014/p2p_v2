@@ -1,18 +1,13 @@
 package org.pstoragebox.cmdsystem;
-import org.fusesource.jansi.AnsiConsole;
-import org.pstoragebox.filesystem.FileSystem;
 import org.pstoragebox.netsystem.NetSystem;
-import org.pstoragebox.netsystem.NetworkService;
 import org.pstoragebox.netsystem.Tcp.TcpService;
 import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
-import org.pstoragebox.tools.FormatSystemPrint;
 import org.pstoragebox.tools.SystemGuarder;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 
 import static org.pstoragebox.tools.FormatSystemPrint.*;
 
@@ -27,11 +22,14 @@ public class CmdSystem {
                 case "cls":
                     cls();
                     break;
-                case "sh":
-                    printWarn(Arrays.toString(PStorageBox.getFileSystem().getMyData()));
+                case "push":
+                    TcpService.pushInfo();
                     break;
-                case "ss":
-                    TcpService.sendinforeq();
+//                case "sh":
+//                    printInfo(PStorageBox.getFileSystem().getLogicalFileList());
+//                    break;
+                case "req":
+                    TcpService.sendInfoReq();
                     break;
                 case "ls":
                     ls();
@@ -46,7 +44,7 @@ public class CmdSystem {
                     }
                     break;
                 case "friends":
-                    printInfo("There are " + NetSystem.getOnlineNodes() + " friend(s).");
+                    printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
                     for (var friendId : NetSystem.getOnlineId()) {
                         printInfo("friend: " + friendId);
                     }
@@ -63,7 +61,7 @@ public class CmdSystem {
                         return;
                     }
 
-                    printInfo("There are " + NetSystem.getOnlineNodes() + " friend(s).");
+                    printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
                     for (var friendId : NetSystem.getOnlineId()) {
                         printInfo("friend: " + friendId);
                     }
@@ -115,11 +113,13 @@ public class CmdSystem {
         try {
             PStorageBox.getFileSystem().downloadCommand(fileName,filePath);
         } catch (IOException e) {
-            printError("发生错误，下载失败");
+            printError("下载失败:"+e.getMessage());
         }
     }
 
     private static void help(){
+        printMessage("push        ：发送自己的fileList");
+        printMessage("req         ：请求fileList");
         printMessage("cls         ：清屏");
         printMessage("ls          ：展示文件系统内文件列表");
         printMessage("whoami      ：显示本结点ID");

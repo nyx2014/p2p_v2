@@ -20,12 +20,13 @@ public class PStorageBox {
     public static void run() {
         AnsiConsole.systemInstall();
         initSystem();
-        SystemGuarder.saveSystem();
+        SystemGuarder.saveSystem();//?
         CmdSystem.runCmdSystem();
     }
 
     public static void exit() {
-        printMessage("system will exit now.");
+        printWarn("system will exit now.");
+        SystemGuarder.saveSystem();//
         NetworkService.stopNetworkService();
         AnsiConsole.systemUninstall();
         System.exit(0);
