@@ -13,7 +13,7 @@ public class SystemGuarder{
             if (file.exists()) if (!file.delete()) throw new IOException();
             FileStream.saveFile(configFilePath,PStorageBox.getFileSystem().getMyData());
         } catch (Exception e) {
-            MyLogger.get().log(Level.SEVERE, e.toString());
+            MyLogger.get().log(Level.SEVERE, e.getMessage());
         }
     }
 

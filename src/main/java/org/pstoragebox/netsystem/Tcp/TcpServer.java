@@ -5,6 +5,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.net.NetServer;
 import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.FileStream;
+import org.pstoragebox.tools.FileTransfer;
 import org.pstoragebox.tools.FormatSystemPrint;
 
 import java.io.IOException;
@@ -14,43 +15,75 @@ import static org.pstoragebox.tools.FormatSystemPrint.printRemoteMessage;
 
 class TcpServer {
     private static NetServer netServer;
-    private String waitForSNDFilePath = null;
+//    private static Buffer data = Buffer.buffer();
+//
+//    private static Boolean snd = false;
+//    private static String filePath;
 
     TcpServer(Vertx vertx) {
         if (netServer == null) netServer = vertx.createNetServer();
         netServer.connectHandler(event -> {
             event.handler(buffer -> {
-                var remote = event.remoteAddress().host();
-                if (waitForSNDFilePath != null) {
-                    printRemoteMessage(remote, "Sent Block, Saving...");
-                    try {
-                        FileStream.writeFileBlockToRealSystem(waitForSNDFilePath, buffer.getBytes());
-                    } catch (IOException e) {
-                        printError("Failed saving block to disk.");
-                    }
-                    waitForSNDFilePath = null;
-                }
+                final var remote = event.remoteAddress().host();
 
-                var buf_str = buffer.toString();
+//                if (snd){
+//                    printInfo("Continue receive...");
+//                    if (data.toString(ISO_8859_1).length() < LogicalFile.blockSize){
+//                        data.appendBuffer(buffer);
+//                        if (data.toString(ISO_8859_1).length()>=LogicalFile.blockSize){
+//                            printInfo("Received a block, save to disk");
+//                            var block = data.toString(ISO_8859_1);
+//                            printInfo("block:"+filePath+" size:"+block.length()+"bytes");
+//                            try {
+////                                printInfo("DEBUG:"+data.length());
+////                                printInfo("DEBUG:"+data.toString().length());
+////                                printInfo("DEBUG:"+data.toString().getBytes(ISO_8859_1).length);
+//                                FileStream.writeFileBlockToRealSystem(filePath, block.getBytes(ISO_8859_1));
+////                                FileStream.writeFileBlockToRealSystem(filePath, data.toString().getBytes(ISO_8859_1));
+//                            } catch (IOException e) {
+//                                printError("Failed saving block to disk.");
+//                            }
+//                            snd = false;
+//                            filePath = null;
+//                            data = null;
+////                            data = Buffer.buffer();
+//                        }
+//                    }else {
+//                        printError("err "+data.length());
+//                    }
+//                }
+
+                final var buf_str = buffer.toString();
                 switch (buf_str.substring(0, 3)) {
                     case "REQ":
-                        final var param = buf_str.split("#");
-                        printRemoteMessage(remote, "Request ID: " + param[1]);
-                        printRemoteMessage(remote, "Requesting Block: " + param[2]);
+                        final var blockId = buf_str.substring(3);
+                        printRemoteMessage(remote, "Requesting Block: " + blockId);
                         try {
-                            event.write(Buffer.buffer("RPL"));
-                            Thread.sleep(200);
-                            event.write(Buffer.buffer(FileStream.readFileBlockFromRealSystem(param[2])));
+                            FileTransfer.send(remote, blockId, FileStream.readFileBlockFromRealSystem(blockId));
                         } catch (IOException e) {
-                            printError("Failed read block from disk.");
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            printError(e.getMessage());
                         }
+//                        try {
+//                            event.write(Buffer.buffer("RPL"+
+//                                    (new String(FileStream
+//                                            .readFileBlockFromRealSystem( buf_str.substring(3) ),ISO_8859_1)) ));
+//
+//                        } catch (IOException e) {
+//                            printError("Failed read block from disk.");
+//                        }
                         break;
-                    case "SND":
-                        waitForSNDFilePath = buf_str.substring(3);
-                        printRemoteMessage(remote, "Sending Block: " + waitForSNDFilePath);
-                        break;
+//                    case "SND":
+//                        final var 问号 = buf_str.indexOf("?");
+//                        filePath = buf_str.substring(3,问号);
+//                        final var firstPart = Buffer.buffer(buf_str.substring(问号+1).getBytes(ISO_8859_1));
+////                        final var firstPart = buffer.getString(问号+1,buffer.length(),"ISO_8859_1"); //new String(buf_str.substring(问号+1).getBytes(ISO_8859_1),ISO_8859_1);
+//                        data = firstPart;
+//                        snd = true;
+////                        final var block = buf_str.substring(问号).getBytes(ISO_8859_1);
+////                        waitForSNDFilePath = buf_str.substring(3);
+//                        printRemoteMessage(remote, "Sending Block: " + filePath);
+//                        printInfo("Start Receive "+ firstPart.length());
+//                        break;
                     case "INF":
                         printRemoteMessage(remote, "Want Latest Info.");
                         event.write(Buffer.buffer("INF" + PStorageBox.getFileSystem().getLogicalFileList()));
@@ -59,9 +92,13 @@ class TcpServer {
                         printRemoteMessage(remote, "Sent Latest Info.");
                         PStorageBox.getFileSystem().setLogicalFileList(buf_str.substring(3));
                         break;
+                    case "HLO":
+                        printRemoteMessage(remote, "Says Hello: " + buf_str.substring(3));
+                        event.write(Buffer.buffer("HLO Hi! My addr is: " + event.localAddress()));
+                        break;
                     default:
-                        printRemoteMessage(remote, "Says: " + buffer.toString());
-                        event.write(Buffer.buffer("received! My addr is: " + event.localAddress()));
+//                        printRemoteMessage(remote, "Says: " + buffer.toString().substring(0,3));
+//                        event.write(Buffer.buffer("received! My addr is: " + event.localAddress()));
                         break;
                 }
 //                if (buf_str.startsWith("REQ")) {

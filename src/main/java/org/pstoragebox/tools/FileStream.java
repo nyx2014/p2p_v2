@@ -1,5 +1,7 @@
 package org.pstoragebox.tools;
 
+import org.pstoragebox.filesystem.LogicalFile;
+
 import java.io.*;
 import java.util.logging.Level;
 
@@ -8,6 +10,7 @@ import static org.pstoragebox.tools.FormatSystemPrint.*;
 public class FileStream {
 
     public static void writeFileBlockToRealSystem(String filePath, byte[] data) throws IOException {
+        printInfo("DEBUG: data length to write: "+data.length);
         File file = new File(LocalPathManager.getLocalFilePath() + "\\" + filePath);
         if (file.exists() && file.isFile()) {
             printError("文件块重名，无法保存文件");
@@ -18,7 +21,9 @@ public class FileStream {
         try {
             if (file.createNewFile()) {
                 DataOutputStream out = new DataOutputStream(new FileOutputStream(LocalPathManager.getLocalFilePath() + "\\" + filePath, true));
-                out.write(data);
+                byte[] tmp = new byte[LogicalFile.blockSize];
+                System.arraycopy(data,0,tmp,0,LogicalFile.blockSize);
+                out.write(tmp);
                 out.close();
             }
         } catch (Exception e) {

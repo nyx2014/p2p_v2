@@ -3,7 +3,7 @@ package org.pstoragebox.netsystem;
 import io.vertx.core.Vertx;
 import org.pstoragebox.netsystem.Tcp.TcpService;
 import org.pstoragebox.netsystem.UdpGroupMulticast.GroupMulticastService;
-import org.pstoragebox.tools.FormatSystemPrint;
+import org.pstoragebox.tools.FileTransfer;
 
 import static org.pstoragebox.tools.FormatSystemPrint.printInfo;
 
@@ -15,6 +15,7 @@ public class NetworkService {
         var vert = Vertx.vertx();
         tcpService = new TcpService(vert);
         groupMulticastService = new GroupMulticastService();
+        FileTransfer.receive();
         printInfo("Network Service started");
     }
 

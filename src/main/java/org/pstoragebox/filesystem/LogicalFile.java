@@ -6,7 +6,14 @@ import java.util.List;
 
 public class LogicalFile implements Serializable {
 
-    public LogicalFile(String myId,String fileName, int backupNum, byte[] data) {
+    public final static int blockSize = 1048576;
+    private String fileName;
+    private int fileSize;
+    private int backupNum;
+    private int blockNum;
+    private List<LogicalFileBlock> fileBlockList;
+
+    LogicalFile(final String myId, final String fileName, final int backupNum, final byte[] data) {
         this.fileName = fileName;
         this.fileSize = data.length;
         this.backupNum = backupNum;
@@ -16,18 +23,16 @@ public class LogicalFile implements Serializable {
         if (data.length % blockSize != 0)
             blockNum++;
 
-        for (int i = 0; i < blockNum;i++){
-            byte[] tempData = new byte[blockSize];
-            for (int j = 0;j<blockSize;j++){
-                if (i*blockSize+j < data.length)
-                    tempData[j] = data[i*blockSize+j];
-                else
-                    tempData[j] = -1;
+        for (int i = 0; i < blockNum; i++) {
+            var tempData = new byte[blockSize];
+            for (int j = 0; j < blockSize; j++) {
+                if (i * blockSize + j < data.length) tempData[j] = data[i * blockSize + j];
+                else tempData[j] = -1;
             }
-            String filePath = myId+"_"+fileName+"_"+i;
-            LogicalFileBlock tempBlock = new LogicalFileBlock(myId,filePath,tempData);
-            int lastBackupNum = backupNum -1;
-            while (lastBackupNum > 0){
+            final var filePath = myId + "_" + fileName + "_" + i;
+            var tempBlock = new LogicalFileBlock(myId, filePath, tempData);
+            var lastBackupNum = backupNum - 1;
+            while (lastBackupNum > 0) {
                 tempBlock.addABackup();
                 lastBackupNum--;
             }
@@ -35,39 +40,29 @@ public class LogicalFile implements Serializable {
         }
     }
 
-    public byte[] downloadFile(){
-        byte[] data = new byte[0];
-        for (int i = 0; i < blockNum;i++){
+    byte[] downloadFile() {
+        var data = new byte[0];
+        for (int i = 0; i < blockNum; i++) {
             var tempData = fileBlockList.get(i).downloadBlock();
-            var newdata = new byte[data.length+tempData.length];
-            System.arraycopy(data, 0, newdata, 0, data.length);
-            System.arraycopy(tempData, 0, newdata, data.length, tempData.length);
-            data = newdata;
+            var newData = new byte[data.length + tempData.length];
+            System.arraycopy(data, 0, newData, 0, data.length);
+            System.arraycopy(tempData, 0, newData, data.length, tempData.length);
+            data = newData;
         }
-        byte[] result = new byte[fileSize];
-        if (data.length > fileSize){
-            System.arraycopy(data,0,result,0,fileSize);
-        }
+        var result = new byte[fileSize];
+        if (data.length > fileSize) System.arraycopy(data, 0, result, 0, fileSize);
         return result;
     }
 
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public int getBlockNum() {
-        return blockNum;
-    }
-
-    public void setBlockNum(int blockNum) {
-        this.blockNum = blockNum;
-    }
-
-    private String fileName;
-    private int fileSize;
-    private int backupNum;
-    private int blockNum;
-    private List<LogicalFileBlock> fileBlockList;
-    private final static int blockSize = 1048576;
+//    public String getFileName() {
+//        return fileName;
+//    }
+//
+//    public int getBlockNum() {
+//        return blockNum;
+//    }
+//
+//    public void setBlockNum(int blockNum) {
+//        this.blockNum = blockNum;
+//    }
 }

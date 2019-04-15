@@ -21,20 +21,15 @@ public class TcpService {
         server = new TcpServer(v);
     }
 
-    public static void connTo(final InetAddress targetIP,final String targetId) {
+    public static void connTo(final InetAddress targetIP, final String targetId) {
         if (v == null) throw new NullPointerException();
         if (!clients.containsKey(targetId)) {
             printInfo("Found Node: " + targetId + " at " + targetIP);
             printInfo("trying conn to " + targetIP.getCanonicalHostName());
+            //TODO: 连接失败时不要加入clients
             clients.put(targetId, new TcpClient(targetId, v, targetIP));
-
 //            ((TcpClient) clients.values().toArray()[0]).sendInfoRequest(v);
-
-//            var it = clients.values().iterator();
-//            if (it.hasNext()) PStorageBox.getFileSystem().updateData(it.next().sendInfoRequest());
-
             printInfo("currently connected " + clients.size() + " near node(s).");
-//            System.out.println("LOG: currently connected " + clients.size() + " near node(s).");
         }
     }
 
@@ -55,6 +50,25 @@ public class TcpService {
         printInfo("LOG: currently connected " + clients.size() + " near node(s).");
     }
 
+    public static Integer getOnlineClientsCount() {
+        return clients.size();
+    }
+
+    public static Set<String> getOnlineClientList() {
+        return clients.keySet();
+    }
+
+    public static void sendBlockTo(final String targetId, final byte[] blockData, final String filePath) {
+        printInfo("sendBlockTo: " + targetId + " filePath: " + filePath);
+        if (clients.containsKey(targetId))
+            clients.get(targetId).sendBlock(v, blockData, filePath);
+        else printError("" + targetId + " not in connected list");
+    }
+
+    public static byte[] getBlockFrom(final String targetId, final String filePath) {
+        return clients.containsKey(targetId) ? clients.get(targetId).sendRequest(v, filePath) : null;
+    }
+
     public void stopService() {
         clients.values().forEach(TcpClient::stopClient);
         try {
@@ -63,28 +77,5 @@ public class TcpService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public static Integer getOnlineClientsCount() {
-        return clients.size();
-    }
-
-    public static Set<?> getOnlineClientList() {
-        return clients.keySet();
-    }
-
-    public static Boolean sendBlockTo(final String targetId, final byte[] blockData, final String filePath) {
-        printInfo("sendBlockTo: " + targetId + " filePath: " + filePath);
-        if (!clients.containsKey(targetId)) return false;
-        else {
-            clients.get(targetId).sendBlock(v, blockData, filePath);
-            pushInfo();
-            return true;
-        }
-    }
-
-    public static byte[] requestBlockTo(final String targetId,final String filePath) {
-        sendInfoReq();
-        return clients.containsKey(targetId) ? clients.get(targetId).sendRequest(v, filePath) : null;
     }
 }

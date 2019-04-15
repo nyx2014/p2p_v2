@@ -5,24 +5,37 @@ import org.pstoragebox.tools.AutoIdGenerator;
 import org.pstoragebox.tools.FileStream;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 public class NetSystem {
     // 获取在线主机的ID
     public static String[] getOnlineId() {
-        return TcpService.getOnlineClientList().toArray(String[]::new);
+        var list = new HashSet<>(TcpService.getOnlineClientList());
+        String id = null;
+        try {
+            id = AutoIdGenerator.getId();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        list.add(id);
+        return list.toArray(String[]::new);
     }
 
     // 上传文件 返回结果
     // 目标主机ID，byte数组，新文件路径
-    public static boolean uploadFile(String aimID, byte[] data, String filePath) {
-        return TcpService.sendBlockTo(aimID, data, filePath);
+    public static void networkSendBlock(String aimID, byte[] data, String filePath) throws IOException {
+        if(AutoIdGenerator.getId().equals(aimID))
+            FileStream.writeFileBlockToRealSystem(filePath, data);
+        else TcpService.sendBlockTo(aimID, data, filePath);
+//        return TcpService.sendBlockTo(aimID, data, filePath);
     }
 
     // 下载文件 返回块
     // 目标主机ID，文件路径
-    public static byte[] downloadFile(String aimID, String filePath) throws IOException {
-        return (AutoIdGenerator.getId().equals(aimID)) ? FileStream.readFileBlockFromRealSystem(filePath)
-                : TcpService.requestBlockTo(aimID, filePath);
+    public static byte[] networkGetBlock(String aimID, String filePath) throws IOException {
+//        return (AutoIdGenerator.getId().equals(aimID)) ? FileStream.readFileBlockFromRealSystem(filePath)
+//                : TcpService.requestBlockTo(aimID, filePath);
+        return FileStream.readFileBlockFromRealSystem(filePath);
     }
 
 //    // 加入网络

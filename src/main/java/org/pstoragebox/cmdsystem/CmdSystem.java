@@ -1,4 +1,5 @@
 package org.pstoragebox.cmdsystem;
+
 import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.netsystem.Tcp.TcpService;
 import org.pstoragebox.system.PStorageBox;
@@ -12,22 +13,19 @@ import java.net.UnknownHostException;
 import static org.pstoragebox.tools.FormatSystemPrint.*;
 
 public class CmdSystem {
-    public static void  runCmdSystem() {
+    public static void runCmdSystem() {
         help();
         printMessage("Please enter command");
 //        printHead();
         while (true) {
-            var inputs = getNextLine().split(" ");
-            if (inputs.length!=0) switch (inputs[0]) {
+            final var inputs = getNextLine().split(" ");
+            if (inputs.length != 0) switch (inputs[0]) {
                 case "cls":
                     cls();
                     break;
                 case "push":
                     TcpService.pushInfo();
                     break;
-//                case "sh":
-//                    printInfo(PStorageBox.getFileSystem().getLogicalFileList());
-//                    break;
                 case "req":
                     TcpService.sendInfoReq();
                     break;
@@ -51,9 +49,10 @@ public class CmdSystem {
                     break;
                 case "conn":
                     if (inputs.length < 3) {
-                        printError("Invalid input");
+                        error();
                         break;
                     }
+
                     try {
                         TcpService.connTo(InetAddress.getByName(inputs[1]), inputs[2]);
                     } catch (UnknownHostException e) {
@@ -62,23 +61,17 @@ public class CmdSystem {
                     }
 
                     printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
-                    for (var friendId : NetSystem.getOnlineId()) {
+                    for (var friendId : TcpService.getOnlineClientList()) {
                         printInfo("friend: " + friendId);
                     }
                     break;
                 case "upload":
-                    if (inputs.length < 3) {
-                        printError("Invalid input");
-                        break;
-                    }
-                    upload(inputs[1], inputs[2]);
+                    if (inputs.length < 3) error();
+                    else upload(inputs[1], inputs[2]);
                     break;
                 case "download":
-                    if (inputs.length < 3) {
-                        printError("Invalid input");
-                        break;
-                    }
-                    download(inputs[1], inputs[2]);
+                    if (inputs.length < 3) error();
+                    else download(inputs[1], inputs[2]);
                     break;
                 case "exit":
                     PStorageBox.exit();
@@ -86,38 +79,48 @@ public class CmdSystem {
                     help();
                     break;
                 default:
-                    printError("Invalid input");
-                    printMessage("Enter help to get help message");
+                    error();
                     break;
             }
         }
     }
 
-    private static void ls() {
-        String[] fileNames = PStorageBox.getFileSystem().lsCommand();
-        for (String fileName:fileNames) {
-            printMessage(fileName);
-        }
+    private static void error(){
+        printError("Invalid input");
+        printInfo("Enter help to get help message");
     }
 
-    private static void upload(String filePath,String fileName) {
+    private static void ls() {
+        var fileNames = PStorageBox.getFileSystem().lsCommand();
+        if (fileNames.length == 0) printInfo("( Empty )");
+        for (var fileName : fileNames) printInfo(fileName);
+    }
+
+    private static void upload(String filePath, String fileName) {
         try {
-            PStorageBox.getFileSystem().uploadCommand(fileName,filePath);
+            PStorageBox.getFileSystem().uploadCommand(fileName, filePath);
+            printInfo("upload command completed");
             SystemGuarder.saveSystem();
+            printInfo("system status saved");
+            TcpService.pushInfo();
+            printInfo("file info push action performed");
         } catch (IOException e) {
             printError("发生错误，上传失败");
         }
     }
 
-    private static void download(String fileName,String filePath) {
+    private static void download(String fileName, String filePath) {
         try {
-            PStorageBox.getFileSystem().downloadCommand(fileName,filePath);
+            TcpService.sendInfoReq();
+            printInfo("send get-file-info-request action performed");
+            PStorageBox.getFileSystem().downloadCommand(fileName, filePath);
+            printInfo("download command completed");
         } catch (IOException e) {
-            printError("下载失败:"+e.getMessage());
+            printError("下载失败:" + e.getMessage());
         }
     }
 
-    private static void help(){
+    private static void help() {
         printMessage("push        ：发送自己的fileList");
         printMessage("req         ：请求fileList");
         printMessage("cls         ：清屏");
