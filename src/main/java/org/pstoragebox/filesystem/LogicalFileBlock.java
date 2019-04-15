@@ -1,6 +1,7 @@
 package org.pstoragebox.filesystem;
 
 import org.pstoragebox.netsystem.NetSystem;
+import org.pstoragebox.tools.AutoIdGenerator;
 import org.pstoragebox.tools.FileStream;
 import org.pstoragebox.tools.MyLogger;
 
@@ -72,9 +73,16 @@ public class LogicalFileBlock implements Serializable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        final var keys = blockLocations.keySet().toArray(new String[0]);
-        final var randomKey = keys[(int) (Math.random() * keys.length)];
+        String randomKey = "";
+        try {
+            randomKey = AutoIdGenerator.getId();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!blockLocations.containsKey(randomKey)){
+            var keys = blockLocations.keySet().toArray(new String[0]);
+            randomKey = keys[(int) (Math.random() * keys.length)];
+        }
         try {
             return NetSystem.networkGetBlock(randomKey, blockLocations.get(randomKey));
         } catch (IOException e) {

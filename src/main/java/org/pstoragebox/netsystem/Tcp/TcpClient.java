@@ -6,8 +6,11 @@ import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
 import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
+import org.pstoragebox.tools.FileStream;
 import org.pstoragebox.tools.FileTransfer;
+import org.pstoragebox.tools.LocalPathManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -104,10 +107,27 @@ class TcpClient {
 
     byte[] sendRequest(final Vertx vertx, final String filePath) {
         snd(vertx, "REQ" + filePath);
-        while (){
-            //TODO
+        while (true){
+            try {
+                File file = new File(LocalPathManager.getLocalFilePath() + "\\" + filePath);
+                if (file.exists()){
+                    break;
+                }else {
+                    Thread.sleep(500);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return null;
+        byte[] datas= new byte[0];
+        try {
+            datas = FileStream.readFileBlockFromRealSystem(filePath);
+            File file = new File(LocalPathManager.getLocalFilePath() + "\\" + filePath);
+            file.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return datas;
     }
 
     void sendLatestInfo(final Vertx vertx, final String info) {
