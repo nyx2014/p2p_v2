@@ -47,30 +47,33 @@ class TcpClient {
                                 + " and my ip is: "
                                 + netSocket.localAddress()));
                 netSocket.handler(event -> {
-                    printInfo("Client netSocket handler >");
-
-//                    if (reply) {
-//                        printInfo("Receive remote reply data, Saving");
-//                        replyBuffer = event;
-//                        reply = false;
-//                    }
                     var buf_str = event.toString();
-                    switch (buf_str.substring(0, 3)) {
-//                        case "RPL":
-//                            printInfo("remote replying block request");
-//                            reply = buf_str.substring(3).getBytes(ISO_8859_1);
-////                            resp.complete(buf_str.substring(3).getBytes());
+                    if (buf_str.startsWith("INF")) PStorageBox.getFileSystem().setLogicalFileList(buf_str.substring(3));
+                    else printInfo("SERVER says: " + buf_str);
+//                    printInfo("Client netSocket handler >>>");
+//
+////                    if (reply) {
+////                        printInfo("Receive remote reply data, Saving");
+////                        replyBuffer = event;
+////                        reply = false;
+////                    }
+//                    var buf_str = event.toString();
+//                    switch (buf_str.substring(0, 3)) {
+////                        case "RPL":
+////                            printInfo("remote replying block request");
+////                            reply = buf_str.substring(3).getBytes(ISO_8859_1);
+//////                            resp.complete(buf_str.substring(3).getBytes());
+////                            break;
+//                        case "INF":
+//                            PStorageBox.getFileSystem().setLogicalFileList(buf_str.substring(3));
 //                            break;
-                        case "INF":
-                            PStorageBox.getFileSystem().setLogicalFileList(buf_str.substring(3));
-                            break;
-                        case "HLO":
-                            printInfo("SERVER says: " + buf_str.substring(3));
-                            break;
-                        default:
-                            printInfo("SERVER says: " + buf_str);
-                            break;
-                    }
+//                        case "HLO":
+//                            printInfo("SERVER says: " + buf_str.substring(3));
+//                            break;
+//                        default:
+//                            printInfo("SERVER says: " + buf_str);
+//                            break;
+//                    }
                 }).closeHandler(event -> {
                     printInfo("LOG: TcpClient Socket closed here.");
                     TcpService.disConnFrom(myId);
@@ -100,17 +103,11 @@ class TcpClient {
     }
 
     byte[] sendRequest(final Vertx vertx, final String filePath) {
-//        resp = Future.future();
-
         snd(vertx, "REQ" + filePath);
-//        byte[] result = null;
-//        while (reply != null) {
-//            result = reply;
-//            reply = null;
-//        }
-//        return result;
+        while (){
+            //TODO
+        }
         return null;
-//        return resp.result();
     }
 
     void sendLatestInfo(final Vertx vertx, final String info) {

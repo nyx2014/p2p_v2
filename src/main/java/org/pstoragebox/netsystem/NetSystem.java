@@ -33,9 +33,9 @@ public class NetSystem {
     // 下载文件 返回块
     // 目标主机ID，文件路径
     public static byte[] networkGetBlock(String aimID, String filePath) throws IOException {
-//        return (AutoIdGenerator.getId().equals(aimID)) ? FileStream.readFileBlockFromRealSystem(filePath)
-//                : TcpService.requestBlockTo(aimID, filePath);
-        return FileStream.readFileBlockFromRealSystem(filePath);
+        return (AutoIdGenerator.getId().equals(aimID)) ? FileStream.readFileBlockFromRealSystem(filePath)
+                : TcpService.getBlockFrom(aimID, filePath);
+//        return FileStream.readFileBlockFromRealSystem(filePath);
     }
 
 //    // 加入网络

@@ -1,6 +1,5 @@
 package org.pstoragebox.cmdsystem;
 
-import org.pstoragebox.netsystem.NetSystem;
 import org.pstoragebox.netsystem.Tcp.TcpService;
 import org.pstoragebox.system.PStorageBox;
 import org.pstoragebox.tools.AutoIdGenerator;
@@ -42,27 +41,17 @@ public class CmdSystem {
                     }
                     break;
                 case "friends":
-                    printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
-                    for (var friendId : NetSystem.getOnlineId()) {
-                        printInfo("friend: " + friendId);
-                    }
+                    friends();
                     break;
                 case "conn":
-                    if (inputs.length < 3) {
-                        error();
-                        break;
-                    }
-
-                    try {
-                        TcpService.connTo(InetAddress.getByName(inputs[1]), inputs[2]);
-                    } catch (UnknownHostException e) {
-                        printError("UnknownHostException: " + inputs[1]);
-                        return;
-                    }
-
-                    printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
-                    for (var friendId : TcpService.getOnlineClientList()) {
-                        printInfo("friend: " + friendId);
+                    if (inputs.length < 3) error();
+                    else {
+                        try {
+                            TcpService.connTo(InetAddress.getByName(inputs[1]), inputs[2]);
+                            friends();
+                        } catch (UnknownHostException e) {
+                            printError("UnknownHostException: " + inputs[1]);
+                        }
                     }
                     break;
                 case "upload":
@@ -85,9 +74,15 @@ public class CmdSystem {
         }
     }
 
-    private static void error(){
+    private static void error() {
         printError("Invalid input");
         printInfo("Enter help to get help message");
+    }
+
+    private static void friends() {
+        printInfo("There are " + TcpService.getOnlineClientsCount() + " friend(s).");
+        TcpService.getOnlineClientList().forEach(s -> printInfo("friend: " + s));
+//        for (var friendId : TcpService.getOnlineClientList()) printInfo("friend: " + friendId);
     }
 
     private static void ls() {
@@ -106,6 +101,7 @@ public class CmdSystem {
             printInfo("file info push action performed");
         } catch (IOException e) {
             printError("发生错误，上传失败");
+            e.printStackTrace();
         }
     }
 
@@ -116,7 +112,8 @@ public class CmdSystem {
             PStorageBox.getFileSystem().downloadCommand(fileName, filePath);
             printInfo("download command completed");
         } catch (IOException e) {
-            printError("下载失败:" + e.getMessage());
+            printError("下载失败");
+            e.printStackTrace();
         }
     }
 

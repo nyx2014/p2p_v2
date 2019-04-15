@@ -1,7 +1,7 @@
 package org.pstoragebox.tools;
 
 import java.io.*;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -55,9 +55,9 @@ public class FileTransfer {
     }
 
     public static void send(final String aimIP, final String fileName, final byte[] data) {
-        try (Socket socket = new Socket();
+        try (Socket socket = new Socket(InetAddress.getByName(aimIP), PORT);
              DataOutputStream dout = new DataOutputStream(socket.getOutputStream())) {
-            socket.connect(new InetSocketAddress(aimIP, PORT), 10 * 1000);
+//            socket.connect(new InetSocketAddress(aimIP, PORT), 10 * 1000);
             dout.writeUTF(fileName);
             dout.write(data);
             dout.flush();

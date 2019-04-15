@@ -94,7 +94,7 @@ class TcpServer {
                         break;
                     case "HLO":
                         printRemoteMessage(remote, "Says Hello: " + buf_str.substring(3));
-                        event.write(Buffer.buffer("HLO Hi! My addr is: " + event.localAddress()));
+                        event.write(Buffer.buffer("Hi! My addr is: " + event.localAddress()));//HLO
                         break;
                     default:
 //                        printRemoteMessage(remote, "Says: " + buffer.toString().substring(0,3));
